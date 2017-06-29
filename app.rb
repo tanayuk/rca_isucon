@@ -2,9 +2,12 @@ require 'sinatra/base'
 require 'mysql2'
 require 'rack-flash'
 require 'shellwords'
+require 'newrelic_rpm'
+require 'sinatra/config_file'
 
 module Isuconp
   class App < Sinatra::Base
+    config_file './newrelic.yml'
     use Rack::Session::Memcache, autofix_keys: true, secret: ENV['ISUCONP_SESSION_SECRET'] || 'sendagaya'
     use Rack::Flash
     set :public_folder, File.expand_path('../../public', __FILE__)
