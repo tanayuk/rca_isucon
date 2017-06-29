@@ -4,13 +4,14 @@ require 'rack-flash'
 require 'shellwords'
 require 'newrelic_rpm'
 require 'sinatra/config_file'
+require 'sinatra/cache'
 
 module Isuconp
   class App < Sinatra::Base
     use Rack::Session::Memcache, autofix_keys: true, secret: ENV['ISUCONP_SESSION_SECRET'] || 'sendagaya'
     use Rack::Flash
     set :public_folder, File.expand_path('../../public', __FILE__)
-
+    set :cache_enabled, true
     UPLOAD_LIMIT = 10 * 1024 * 1024 # 10mb
 
     POSTS_PER_PAGE = 20
