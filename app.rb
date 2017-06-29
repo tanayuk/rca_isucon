@@ -4,15 +4,12 @@ require 'rack-flash'
 require 'shellwords'
 require 'newrelic_rpm'
 require 'sinatra/config_file'
-require 'sinatra/cache'
 
 module Isuconp
   class App < Sinatra::Base
     use Rack::Session::Memcache, autofix_keys: true, secret: ENV['ISUCONP_SESSION_SECRET'] || 'sendagaya'
     use Rack::Flash
     set :public_folder, File.expand_path('../../public', __FILE__)
-    register(Sinatra::Cache)
-    set :cache_enabled, true
     UPLOAD_LIMIT = 10 * 1024 * 1024 # 10mb
 
     POSTS_PER_PAGE = 20
@@ -71,11 +68,7 @@ module Isuconp
       end
 
       def validate_user(account_name, password)
-        if !(/\A[0-9a-zA-Z_]{3,}\z/.match(account_name) && /\A[0-9a-zA-Z_]{6,}\z/.match(password))
-          return false
-        end
-
-        return true
+        return (/\A[0-9a-zA-Z_]{3,}\z/.match(account_name) && /\A[0-9a-zA-Z_]{6,}\z/.match(password))
       end
 
       def digest(src)
@@ -108,7 +101,7 @@ module Isuconp
             post[:id]
           ).first[:count]
 
-          query = 'SELECT * FROM `comments` WHERE `post_id` = ? ORDER BY `created_at` DESC'
+          query = 'SELECT * FROM `comments` WHERE `post_id` = ? ORDER BY `created_at` ASC'
           unless all_comments
             query += ' LIMIT 3'
           end
@@ -123,9 +116,9 @@ module Isuconp
             ).first
           end
 
-          post[:comments] = comments.reverse
+          post[:comments] = comments
 
-          post[:user] = db.prepare('SELECT * FROM `users` WHERE `id` = ?').execute(
+          post[:user] = db.prepare('SELECT account_name, del_flg FROM `users` WHERE `id` = ?').execute(
             post[:user_id]
           ).first
 
