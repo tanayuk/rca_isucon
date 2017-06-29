@@ -11,6 +11,7 @@ module Isuconp
     use Rack::Session::Memcache, autofix_keys: true, secret: ENV['ISUCONP_SESSION_SECRET'] || 'sendagaya'
     use Rack::Flash
     set :public_folder, File.expand_path('../../public', __FILE__)
+    register(Sinatra::Cache)
     set :cache_enabled, true
     UPLOAD_LIMIT = 10 * 1024 * 1024 # 10mb
 
