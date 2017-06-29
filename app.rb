@@ -7,7 +7,6 @@ require 'sinatra/config_file'
 
 module Isuconp
   class App < Sinatra::Base
-    config_file './newrelic.yml'
     use Rack::Session::Memcache, autofix_keys: true, secret: ENV['ISUCONP_SESSION_SECRET'] || 'sendagaya'
     use Rack::Flash
     set :public_folder, File.expand_path('../../public', __FILE__)
